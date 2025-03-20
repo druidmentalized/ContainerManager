@@ -1,3 +1,4 @@
+using System.Text;
 using ContainerManager.utils;
 
 namespace ContainerManager.containers;
@@ -51,5 +52,17 @@ public abstract class Container
             throw new OverfillException($"Cannot load {newCargoMass}kg. Exceeds {maximumPayload}kg limit.");
         }
         return true;
+    }
+
+    public override string ToString()
+    {
+       return $"Container [{serialNumber}]\n" +
+            $"Type: {GetType().Name}\n" +
+            $"Height: {_height} cm\n" +
+            $"Tare Weight: {_tareWeight} kg\n" +
+            $"Depth: {_depth} cm\n" +
+            $"Max Payload: {maximumPayload} kg\n" +
+            $"Current Cargo Weight: {cargoWeight} kg\n" +
+            $"Total Mass: {totalMass} kg\n";
     }
 }

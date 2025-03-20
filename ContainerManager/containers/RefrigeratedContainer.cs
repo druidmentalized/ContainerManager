@@ -40,4 +40,11 @@ public class RefrigeratedContainer : Container
         }
         base.LoadCargo(newCargoWeight);
     }
+
+    public override string ToString()
+    {
+        return base.ToString() +
+               $"ProductType: {_productType}\n" +
+               $"Maintained temperature: {_temperature}\n";
+    }
 }
