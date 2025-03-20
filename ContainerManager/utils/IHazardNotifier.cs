@@ -1,4 +1,4 @@
-namespace ContainerManager.Utils;
+namespace ContainerManager.utils;
 
 public interface IHazardNotifier
 {

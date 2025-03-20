@@ -1,6 +1,6 @@
-using ContainerManager.Utils;
+using ContainerManager.utils;
 
-namespace ContainerManager.Containers;
+namespace ContainerManager.containers;
 
 public class GasContainer : Container, IHazardNotifier
 {
@@ -13,19 +13,13 @@ public class GasContainer : Container, IHazardNotifier
         _pressure = pressure;
     }
     
-    
     public override void EmptyCargo()
     {
-        throw new NotImplementedException();
-    }
-
-    public override void LoadCargo(double cargoWeight)
-    {
-        throw new NotImplementedException();
+        cargoWeight *= 0.05;
     }
     
     public void notify()
     {
-        
+        Console.WriteLine($"Gas container {serialNumber} is in hazardous situation!");
     }
 }
