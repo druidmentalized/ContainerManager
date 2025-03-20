@@ -1,4 +1,4 @@
-using ContainerManager.utils;
+using ContainerManager.exceptions;
 
 namespace ContainerManager.containers;
 
@@ -17,6 +17,7 @@ public class RefrigeratedContainer : Container
         { "Butter", 20.5 },
         { "Eggs", 19.0 }
     };
+    
     private readonly string _productType;
     private readonly double _temperature;
 
@@ -24,6 +25,13 @@ public class RefrigeratedContainer : Container
         double depth, double maximumPayload, string productType, double temperature) :
         base("C", height, tareWeight, depth, maximumPayload)
     {
+        if (_productTemperatureMap[productType] < temperature)
+        {
+            throw new TemperatureDiscrepancyException(
+                "Temperature of the container cannot be lower than the temperature required by a given type of product!" +
+                $" ({productType} requires {_productTemperatureMap[productType]} < given {temperature})");
+        }
+        
         _productType = productType;
         _temperature = temperature;
     }

@@ -1,4 +1,4 @@
-namespace ContainerManager.utils;
+namespace ContainerManager.exceptions;
 
 public class WrongProductTypeException : Exception
 {

@@ -1,5 +1,4 @@
-using System.Text;
-using ContainerManager.utils;
+using ContainerManager.exceptions;
 
 namespace ContainerManager.containers;
 
@@ -11,7 +10,7 @@ public abstract class Container
     private readonly double _tareWeight;
     private readonly double _depth;
     
-    protected readonly string serialNumber;
+    public readonly string serialNumber;
     
     public double maximumPayload { get; }
     public double cargoWeight { get; set; }
