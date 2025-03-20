@@ -53,6 +53,6 @@ public class RefrigeratedContainer : Container
     {
         return base.ToString() +
                $"ProductType: {_productType}\n" +
-               $"Maintained temperature: {_temperature}\n";
+               $"Maintained temperature: {_temperature}°C\n";
     }
 }

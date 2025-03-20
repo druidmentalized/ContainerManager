@@ -4,7 +4,7 @@ namespace ContainerManager.containers;
 
 public class GasContainer : Container, IHazardNotifier
 {
-    private double _pressure;
+    private readonly double _pressure;
     
     public GasContainer(double height, double tareWeight,
         double depth, double maximumPayload, double pressure) :
@@ -21,11 +21,12 @@ public class GasContainer : Container, IHazardNotifier
     public override string ToString()
     {
         return base.ToString() +
-               $"Pressure: {_pressure}atm \n";
+               $"Pressure: {_pressure}atm \n" +
+               $"{notify()}\n";
     }
     
-    public void notify()
+    public string notify()
     {
-        Console.WriteLine($"Gas container {serialNumber} is in hazardous situation!");
+        return $"This gas container {serialNumber} is in hazardous situation!";
     }
 }

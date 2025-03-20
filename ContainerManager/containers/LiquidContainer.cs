@@ -27,11 +27,12 @@ public class LiquidContainer : Container, IHazardNotifier
     public override string ToString()
     {
         return base.ToString() +
-               $"Hazardous: {_hazardous}\n";
+               $"Hazardous: {_hazardous}\n" +
+               $"{notify()}\n";
     }
     
-    public void notify()
+    public string notify()
     {
-        Console.WriteLine($"Liquid container {serialNumber} is in hazardous situation!");
+        return $"This liquid container {serialNumber} is in hazardous!";
     }
 }
