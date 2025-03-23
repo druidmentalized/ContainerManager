@@ -7,49 +7,48 @@ namespace ContainerManager.transports
     {
         private static int _shipCounter;
 
-        public readonly string shipName;
-        public readonly int maxSpeed;
-        public readonly int maxContainerAmount;
-        public readonly double maxWeightCapacity;
-        public readonly Dictionary<string, Container> containers = new();
+        public string Name { get; set; }
+        public int MaxSpeed { get; set; }
+        public int MaxContainerAmount { get; set; }
+        public double MaxWeightCapacity { get; set; }
+        public readonly HashSet<Container> Containers = new();
 
         public Ship(int maxSpeed, int maxContainerAmount, double maxWeightCapacity)
         {
-            shipName = $"Ship-{++_shipCounter}";
-            this.maxSpeed = maxSpeed;
-            this.maxContainerAmount = maxContainerAmount;
-            this.maxWeightCapacity = maxWeightCapacity;
+            Name = $"Ship-{++_shipCounter}";
+            MaxSpeed = maxSpeed;
+            MaxContainerAmount = maxContainerAmount;
+            MaxWeightCapacity = maxWeightCapacity;
         }
 
         public void AddContainer(Container container)
         {
-            if (containers.Count >= maxContainerAmount)
+            if (Containers.Count >= MaxContainerAmount)
             {
-                throw new InvalidOperationException($"Cannot add container {container.serialNumber}. Ship has reached max capacity of {maxContainerAmount} containers!");
+                throw new InvalidOperationException($"Cannot add container {container.SerialNumber}. Ship has reached max capacity of {MaxContainerAmount} containers!");
             }
 
-            double currentWeight = containers.Values.Sum(c => c.totalMass);
-            if (currentWeight + container.totalMass > maxWeightCapacity)
+            double currentWeight = Containers.Sum(c => c.TotalWeight);
+            if (currentWeight + container.TotalWeight > MaxWeightCapacity)
             {
-                throw new InvalidOperationException($"Cannot add container {container.serialNumber}. Ship would exceed max weight ({maxWeightCapacity} kg)!");
+                throw new InvalidOperationException($"Cannot add container {container.SerialNumber}. Ship would exceed max weight ({MaxWeightCapacity} kg)!");
             }
 
-            if (!containers.TryAdd(container.serialNumber, container))
+            if (!Containers.Add(container))
             {
-                throw new InvalidOperationException($"Container {container.serialNumber} is already on this ship!");
+                throw new InvalidOperationException($"Container {container.SerialNumber} is already on this ship!");
             }
         }
 
         public void RemoveContainer(Container container)
         {
-            RemoveContainer(container.serialNumber);
-        }
-
-        public void RemoveContainer(string containerSerialNumber)
-        {
-            if (!containers.Remove(containerSerialNumber))
+            if (Containers.Remove(container))
             {
-                throw new KeyNotFoundException($"Container {containerSerialNumber} not found on {shipName}.");
+                Console.WriteLine($"Container {container.SerialNumber} has been removed!");
+            }
+            else
+            {
+                Console.WriteLine($"Container {container.SerialNumber} does not exist!");
             }
         }
 
@@ -59,47 +58,32 @@ namespace ContainerManager.transports
             AddContainer(add);
         }
 
-        public void ReplaceContainer(string containerReplaceNumber, Container container)
+        public static void TransferContainer(Ship from, Ship to, Container container)
         {
-            RemoveContainer(containerReplaceNumber);
-            AddContainer(container);
-        }
-
-        public static void TransferContainer(Ship from, Ship to, string containerSerialNumber)
-        {
-            if (!from.containers.TryGetValue(containerSerialNumber, out var movedContainer))
-            {
-                throw new KeyNotFoundException($"Container {containerSerialNumber} not found on {from.shipName}.");
-            }
-
-            from.RemoveContainer(movedContainer);
-            to.AddContainer(movedContainer);
+            from.RemoveContainer(container);
+            to.AddContainer(container);
         }
 
         public double CurrentWeight()
         {
-            return containers.Values.Sum(c => c.totalMass);
+            return Containers.Sum(c => c.TotalWeight);
         }
         
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder()
-                .AppendLine($"Ship: [{shipName}]")
-                .AppendLine($"Max Speed: {maxSpeed} knots")
-                .AppendLine($"Max Containers: {maxContainerAmount}")
-                .AppendLine($"Max Weight Capacity: {maxWeightCapacity} kg")
-                .AppendLine($"Current Load: {containers.Values.Sum(c => c.totalMass)} kg / {maxWeightCapacity} kg")
-                .AppendLine("─────────────────────────────────────────────");
-
-            if (containers.Count == 0)
+            var sb = new StringBuilder();
+            sb.AppendLine(
+                $"{Name} (Speed={MaxSpeed}, Max Container Count={MaxContainerAmount}, Max Weight={MaxWeightCapacity}), Current Load: {CurrentWeight()}kgs");
+            
+            if (Containers.Count == 0)
             {
-                sb.AppendLine("No containers on this ship.");
+                sb.AppendLine("     No containers on this ship.");
             }
             else
             {
-                foreach (var container in containers.Values)
+                foreach (var container in Containers)
                 {
-                    sb.AppendLine(container.ToString());
+                    sb.AppendLine("     " + container);
                 }
             }
 

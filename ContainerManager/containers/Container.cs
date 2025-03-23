@@ -1,29 +1,33 @@
+using System.ComponentModel;
 using ContainerManager.exceptions;
+using ContainerManager.main;
+using ContainerManager.utils;
 
 namespace ContainerManager.containers;
 
-public abstract class Container
+public abstract class Container : IHazardNotifier
 {
     private static int _containerCounter;
-    
-    private readonly double _height;
-    private readonly double _tareWeight;
-    private readonly double _depth;
-    
-    public readonly string serialNumber;
-    
-    public double maximumPayload { get; }
-    public double cargoWeight { get; set; }
-    public double totalMass => cargoWeight + _tareWeight;
 
-    protected Container(string containerType, double height, double tareWeight,
-        double depth, double maximumPayload)
+    private TypeEnum _type { get; set; }
+    public Product? Product { get; private set; }
+    public double Height { get; }
+    public double Weight { get; }
+    public double Depth { get; }
+    public string SerialNumber { get; }
+    public double MaximumCargoWeight { get; }
+    public double CargoWeight { get; set; }
+    public double TotalWeight => CargoWeight + Weight;
+
+    protected Container(string containerType, double height, double weight,
+        double depth, double maximumCargoWeight, TypeEnum type)
     {
-        serialNumber = GenerateSerialNumber(containerType);
-        _height = height;
-        _tareWeight = tareWeight;
-        _depth = depth;
-        this.maximumPayload = maximumPayload;
+        SerialNumber = GenerateSerialNumber(containerType);
+        Height = height;
+        Weight = weight;
+        Depth = depth;
+        MaximumCargoWeight = maximumCargoWeight;
+        _type = type;
     }
 
     private static string GenerateSerialNumber(string containerType)
@@ -33,35 +37,49 @@ public abstract class Container
 
     public virtual void EmptyCargo()
     {
-        cargoWeight = 0;
+        Product = null;
+        CargoWeight = 0;
     }
 
-    public virtual void LoadCargo(double newCargoWeight)
+    public void LoadCargo(double cargoWeight, Product? product)
     {
-        if (CanLoad(newCargoWeight))
+        if (CanLoad(cargoWeight, product))
         {
-            cargoWeight += newCargoWeight;
+            CargoWeight += cargoWeight;
+            Product = product;
         }
     }
-    
-    protected virtual bool CanLoad(double newCargoMass)
+
+    protected virtual bool CanLoad(double cargoWeight, Product? product)
     {
-        if (cargoWeight + newCargoMass > maximumPayload)
+        if (product == null) return false;
+
+        if (!product.IsEquals(Product) || product.Type != _type)
         {
-            throw new OverfillException($"Cannot load {newCargoMass}kg. Exceeds {maximumPayload}kg limit.");
+            throw new LoadingWrongProductException("This product can't be loaded to this type of container.");
         }
+
+        if (CargoWeight + cargoWeight > MaximumCargoWeight)
+        {
+            throw new OverfillException($"Cannot load {cargoWeight}kg. Exceeds {MaximumCargoWeight}kg limit.");
+        }
+
         return true;
     }
 
+
     public override string ToString()
     {
-       return $"Container [{serialNumber}]\n" +
-            $"Type: {GetType().Name}\n" +
-            $"Height: {_height} cm\n" +
-            $"Tare Weight: {_tareWeight} kg\n" +
-            $"Depth: {_depth} cm\n" +
-            $"Max Payload: {maximumPayload} kg\n" +
-            $"Current Cargo Weight: {cargoWeight} kg\n" +
-            $"Total Mass: {totalMass} kg\n";
+        return $"{SerialNumber} " +
+               $"(Type: {GetType().Name}, " +
+               $"Product: {(Product == null ? "nothing" : Product.Name)}, " +
+               $"Height: {Height}cm, " +
+               $"Tare Weight: {Weight}kgs, " +
+               $"Depth: {Depth}cm, " +
+               $"Max Payload: {MaximumCargoWeight} kg, " +
+               $"Current Cargo Weight: {CargoWeight}kg, " +
+               $"Total Mass: {TotalWeight}kgs)";
     }
+
+    public abstract string Notify();
 }

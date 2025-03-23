@@ -2,31 +2,30 @@ using ContainerManager.utils;
 
 namespace ContainerManager.containers;
 
-public class GasContainer : Container, IHazardNotifier
+public class GasContainer : Container
 {
-    private readonly double _pressure;
-    
-    public GasContainer(double height, double tareWeight,
-        double depth, double maximumPayload, double pressure) :
-        base("G", height, tareWeight, depth, maximumPayload)
+    public double Pressure { get; }
+
+    public GasContainer(double height, double weight,
+        double depth, double maximumCargoWeight, double pressure) :
+        base("G", height, weight, depth, maximumCargoWeight, TypeEnum.GAS)
     {
-        _pressure = pressure;
+        Pressure = pressure;
     }
     
     public override void EmptyCargo()
     {
-        cargoWeight *= 0.05;
+        CargoWeight *= 0.05;
     }
-
+    
     public override string ToString()
     {
         return base.ToString() +
-               $"Pressure: {_pressure}atm \n" +
-               $"{notify()}\n";
+               $", Pressure: {Pressure}atm \n";
     }
     
-    public string notify()
+    public override string Notify()
     {
-        return $"This gas container {serialNumber} is in hazardous situation!";
+        return $"This gas container {SerialNumber} is hazardous!";
     }
 }

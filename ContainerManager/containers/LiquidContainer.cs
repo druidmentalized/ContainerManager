@@ -1,25 +1,35 @@
 using ContainerManager.exceptions;
+using ContainerManager.main;
 using ContainerManager.utils;
 
 namespace ContainerManager.containers;
 
-public class LiquidContainer : Container, IHazardNotifier
+public class LiquidContainer : Container
 {
-    private readonly bool _hazardous;
+    public bool IsHazardous { get; set; }
 
-    public LiquidContainer(double height, double tareWeight,
-        double depth, double maximumPayload, bool hazardous) :
-        base("L", height, tareWeight, depth, maximumPayload)
+    public LiquidContainer(double height, double weight,
+        double depth, double maximumCargoWeight, bool isHazardous) :
+        base("L", height, weight, depth, maximumCargoWeight, TypeEnum.LIQUID)
     {
-        _hazardous = hazardous;
+        IsHazardous = isHazardous;
     }
     
-    protected override bool CanLoad(double newCargoMass)
+    protected override bool CanLoad(double cargoWeight, Product? product)
     {
-        var currentLimit = !_hazardous ? maximumPayload * 0.9 : maximumPayload * 0.5;
-        if (cargoWeight + newCargoMass > currentLimit)
+        if (product == null) return false;
+        
+        if (product.IsHazardous != IsHazardous)
         {
-            throw new OverfillException($"Cannot load {newCargoMass}kg. Exceeds {currentLimit}kg limit.");
+            throw new LoadingWrongProductException("The product and container toxicities doesn't match.");
+        }
+        
+        base.CanLoad(cargoWeight, product);
+        
+        var currentLimit = !IsHazardous ? MaximumCargoWeight * 0.9 : MaximumCargoWeight * 0.5;
+        if (CargoWeight + cargoWeight > currentLimit)
+        {
+            throw new OverfillException($"Cannot load {cargoWeight}kg. Exceeds {currentLimit}kg limit.");
         }
         return true;
     }
@@ -27,12 +37,11 @@ public class LiquidContainer : Container, IHazardNotifier
     public override string ToString()
     {
         return base.ToString() +
-               $"Hazardous: {_hazardous}\n" +
-               $"{notify()}\n";
+               $", Hazardous: {IsHazardous}\n";
     }
     
-    public string notify()
+    public override string Notify()
     {
-        return $"This liquid container {serialNumber} is in hazardous!";
+        return $"This liquid container {SerialNumber} is hazardous!";
     }
 }
