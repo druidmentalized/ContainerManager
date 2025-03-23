@@ -9,7 +9,8 @@ public class Product
     public bool IsHazardous { get; set;}
     public double StoringTemperature { get; set; }
 
-    public Product(string name, TypeEnum type, bool isHazardous, double storingTemperature)
+
+    public Product(string name, TypeEnum type, bool isHazardous = false, double storingTemperature = 0)
     {
         Name = name;
         Type = type;

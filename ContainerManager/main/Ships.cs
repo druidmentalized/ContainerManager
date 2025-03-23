@@ -52,6 +52,11 @@ public class Ships
             Console.WriteLine($"Error adding ship: {ex.Message}");
         }
     }
+
+    public void Add(Ship ship)
+    {
+        _ships.Add(ship);
+    }
     
     public void Remove()
     {
@@ -197,5 +202,10 @@ public class Ships
         {
             Console.WriteLine($"Error replacing container: {ex.Message}");
         }
+    }
+
+    public void Clear()
+    {
+        _ships.Clear();
     }
 }

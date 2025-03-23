@@ -1,13 +1,15 @@
+using System.Data;
 using ContainerManager.containers;
 using ContainerManager.transports;
+using ContainerManager.utils;
 
 namespace ContainerManager.main
 {
     class Program
     {
-        private static readonly Products _products = new();
-        private static readonly Containers _containers = new(_products);
-        private static readonly Ships _ships = new(_containers);
+        private static readonly Products Products = new();
+        private static readonly Containers Containers = new(Products);
+        private static readonly Ships Ships = new(Containers);
 
         static void Main()
         {
@@ -25,40 +27,46 @@ namespace ContainerManager.main
                 switch (input)
                 {
                     case "1":
-                        _ships.Add();
+                        Ships.Add();
                         break;
                     case "2":
-                        _ships.Remove();
+                        Ships.Remove();
                         break;
                     case "3":
-                        _containers.Add();
+                        Containers.Add();
                         break;
                     case "4":
-                        _containers.Remove();
+                        Containers.Remove();
                         break;
                     case "5":
-                        _products.Add();
+                        Products.Add();
                         break;
                     case "6":
-                        _products.Remove();
+                        Products.Remove();
                         break;
                     case "7":
-                        _ships.PlaceOnShip();
+                        Ships.PlaceOnShip();
                         break;
                     case "8":
-                        _ships.Transfer();
+                        Ships.Transfer();
                         break;
                     case "9":
-                        _ships.Replace();
+                        Ships.Replace();
                         break;
                     case "10":
-                        _containers.Load();
+                        Containers.Load();
                         break;
                     case "11":
-                        _containers.Unload();
+                        Containers.Unload();
+                        break;
+                    case "g":
+                        Generate();
+                        break;
+                    case "c":
+                        Clear();
                         break;
                     case "t":
-                        //RunIsolatedTestCase();
+                        RunTestWithGeneratedData();
                         break;
                     case "0":
                         exit = true;
@@ -76,9 +84,9 @@ namespace ContainerManager.main
 
         private static void ShowCurrentState()
         {
-            _ships.Print();
-            _containers.Print();
-            _products.Print();
+            Ships.Print();
+            Containers.Print();
+            Products.Print();
 
             Console.WriteLine();
         }
@@ -97,7 +105,9 @@ namespace ContainerManager.main
             Console.WriteLine("9. Replace a container on a ship");
             Console.WriteLine("10. Load a container with cargo");
             Console.WriteLine("11. Unload a container");
-            Console.WriteLine("t. Run an isolated test scenario");
+            Console.WriteLine("g. Generate test data");
+            Console.WriteLine("c. Clear data");
+            Console.WriteLine("t. Run test with generated data");
             Console.WriteLine("0. Exit");
             Console.WriteLine();
             Console.Write("Select an option: ");
@@ -105,75 +115,49 @@ namespace ContainerManager.main
         }
 
         #endregion
-
-        #region Optional Test Scenario
-
-        /*private static void RunIsolatedTestCase()
+        
+        private static void Generate()
         {
-            try
-            {
-                Console.WriteLine("Running Isolated Test Case...\n");
+            Clear();
+            
+            var ship1 = new Ship(20, 5, 15000);
+            Ships.Add(ship1);
+            var ship2 = new Ship(25, 3, 10000);
+            Ships.Add(ship2);
+            
+            var refContainer = new RefrigeratedContainer(250, 500, 300, 4000, 10);
+            var gasContainer = new GasContainer(300, 600, 400, 5000, 15);
+            var liquidContainerSafe = new LiquidContainer(280, 450, 350, 5000, false);
+            var liquidContainerHazardous = new LiquidContainer(280, 450, 350, 5000, true);
+                
+            Containers.Add(refContainer);
+            Containers.Add(gasContainer);
+            Containers.Add(liquidContainerSafe);
+            Containers.Add(liquidContainerHazardous);
 
-                var ship1 = new Ship(20, 5, 15000);
-                var ship2 = new Ship(25, 3, 10000);
+            var bananas = new Product("Bananas", TypeEnum.REFRIGATED, false, 12);
+            var air = new Product("Air", TypeEnum.GAS);
+            var water = new Product("Water", TypeEnum.LIQUID);
+            var oil = new Product("Oil", TypeEnum.LIQUID, true);
+                
+            Products.Add(bananas);
+            Products.Add(air);
+            Products.Add(water);
+            Products.Add(oil);
+            
+            Console.WriteLine("Test data generated successfully.");
+        }
 
-                Console.WriteLine($"Created Ship 1: \n{ship1}");
-                Console.WriteLine($"Created Ship 2: \n{ship2}\n");
+        private static void Clear()
+        {
+            Ships.Clear();
+            Containers.Clear();
+            Products.Clear();
+        }
 
-                var refContainer = new RefrigeratedContainer(250, 500, 300, 4000, "Fish", 2.0);
-                var gasContainer = new GasContainer(300, 600, 400, 5000, 15);
-                var liquidContainerSafe = new LiquidContainer(280, 450, 350, 5000, false);
-                var liquidContainerHazardous = new LiquidContainer(280, 450, 350, 5000, true);
-
-                ship1.AddContainer(refContainer);
-                ship1.AddContainer(gasContainer);
-                ship1.AddContainer(liquidContainerSafe);
-                ship1.AddContainer(liquidContainerHazardous);
-
-                Console.WriteLine("Containers added to Ship 1!\n");
-                Console.WriteLine(ship1);
-
-                Console.WriteLine("\nAttempting to load cargo...");
-                refContainer.LoadCargo(300, "Fish");
-                gasContainer.LoadCargo(400);
-                liquidContainerSafe.LoadCargo(2000);
-
-                try
-                {
-                    liquidContainerHazardous.LoadCargo(3000);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"{ex.Message}");
-                }
-
-                Console.WriteLine("\nUpdated Ship 1 details after loading cargo:");
-                Console.WriteLine(ship1);
-
-                Console.WriteLine("\nTransferring a container from Ship 1 to Ship 2...");
-                Ship.TransferContainer(ship1, ship2, refContainer.SerialNumber);
-                Console.WriteLine("Transfer successful!\n");
-
-                Console.WriteLine("Ship 1 after transfer:");
-                Console.WriteLine(ship1);
-                Console.WriteLine("Ship 2 after transfer:");
-                Console.WriteLine(ship2);
-
-                Console.WriteLine("\nRemoving a container from Ship 1...");
-                ship1.RemoveContainer(gasContainer.SerialNumber);
-                Console.WriteLine("Gas container removed from Ship 1!");
-
-                Console.WriteLine("\nFinal Ship 1 status:");
-                Console.WriteLine(ship1);
-
-                Console.ReadLine();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-        }*/
-
-        #endregion
+        private static void RunTestWithGeneratedData()
+        {
+            
+        }
     }
 }

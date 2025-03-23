@@ -69,6 +69,11 @@ public class Products
         Console.WriteLine($"New product {name} was successfully added.");
     }
 
+    public void Add(Product product)
+    {
+        _products.Add(product);
+    }
+
     public void Remove()
     {
         if (_products.Count == 0)
@@ -90,8 +95,15 @@ public class Products
         Console.WriteLine($"Product {name} was successfully removed.");
     }
 
+    
+    // Helper
     public Product? Find(string? productName)
     {
         return _products.FirstOrDefault(p => p.Name == productName);
+    }
+
+    public void Clear()
+    {
+        _products.Clear();
     }
 }

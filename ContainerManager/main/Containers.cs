@@ -85,6 +85,11 @@ public class Containers
         }
     }
 
+    public void Add(Container container)
+    {
+        _containers.Add(container);
+    }
+
     public void Remove()
     {
         if (_containers.Count == 0)
@@ -179,5 +184,10 @@ public class Containers
     public Container? Find(string? serialNumber)
     {
         return _containers.FirstOrDefault(c => c.SerialNumber == serialNumber);
+    }
+
+    public void Clear()
+    {
+        _containers.Clear();
     }
 }
